@@ -18,5 +18,30 @@ private class AccountWrapperTests {
             Assert.areEqual(1000.00, acctWrapper.getRoundedAvgPriceOfOpps(), 'Expected to get 1000.00');
         Test.stopTest();
     }
+    @IsTest 
+    static void testIsHighPriority(){
+        // WHEN 
+        List<AccountWrapper> accounts = new List<AccountWrapper>();
+        for(Account a : [SELECT ID, Name FROM ACCOUNT]){
+            accounts.add(new AccountWrapper(a));
+        }
+        // Sanity check asserting that we have opportunities before executing our tested method 
+        // Also get the amount field so we can update 
+        List<Opportunity> sanityCheckListOfOpps = [SELECT Id, Amount FROM Opportunity];
+        System.assert(sanityCheckListOfOpps.size() > 0, 'You need an opportunity to continue');
+            for(Opportunity opp : sanityCheckListOfOpps){
+                opp.Amount = 100000;
+            }
+
+        // Update the list of opportunities with the new values 
+        update sanityCheckListOfOpps; 
+
+        // THEN 
+        Test.startTest();
+        for(AccountWrapper a : accounts) {
+            System.assertEquals(a.isHighPriority(), false, 'Expected isHighPriority return false');
+        }
+        Test.stopTest();
+    }
 
 }
